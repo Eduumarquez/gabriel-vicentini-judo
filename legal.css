@@ -1,0 +1,17 @@
+/* Estilo das páginas legais (privacidade e termos) */
+:root{--ink:#0b0b0c;--paper:#f2ede3;--paper-dim:#c9c2b4;--red:#d0142c;--line:rgba(242,237,227,.14)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--paper);font-family:Inter,system-ui,sans-serif;line-height:1.75;padding:0 16px}
+main{max-width:760px;margin:0 auto;padding:72px 0 96px}
+a{color:var(--paper);text-decoration-color:var(--red);text-underline-offset:3px}
+:focus-visible{outline:3px solid #ff5a6e;outline-offset:3px;border-radius:4px}
+.back{display:inline-block;margin-bottom:40px;font-size:14px;color:var(--paper-dim)}
+.proto{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;background:#c9a45c;color:var(--ink);padding:5px 12px;border-radius:99px;font-weight:700;margin-bottom:20px}
+h1{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:clamp(40px,8vw,72px);line-height:1;text-transform:uppercase;margin-bottom:12px}
+.updated{color:var(--paper-dim);font-size:14px;margin-bottom:48px}
+h2{font-family:"Shippori Mincho",serif;font-weight:800;font-size:22px;margin:40px 0 10px;padding-top:24px;border-top:1px solid var(--line)}
+p,li{color:var(--paper-dim);font-size:16px}
+p+p{margin-top:12px}
+ul{padding-left:20px;margin-top:8px}
+li+li{margin-top:6px}
+strong{color:var(--paper);font-weight:600}

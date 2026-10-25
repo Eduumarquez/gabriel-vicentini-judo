@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gabriel Vicentini · Judô</title>
+<meta name="description" content="Gabriel Vicentini — treinador capixaba de judô de alto rendimento. Do Espírito Santo ao Paraguai, Líbano e Arábia Saudita.">
+<!-- Protótipo: não indexar até aprovação do professor -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{
+  --ink:#0b0b0c;
+  --ink-2:#151517;
+  --ink-3:#222226;
+  --paper:#f2ede3;
+  --paper-dim:#bdb6a8;
+  --muted:#8a8478;
+  --red:#d0142c;
+  --red-deep:#8e0c1d;
+  --gold:#c9a45c;
+  --line:rgba(242,237,227,.12);
+  --gutter:clamp(16px,5vw,72px);
+  --belt:#f2ede3;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--paper);font-family:Inter,system-ui,sans-serif;font-weight:400;line-height:1.6;overflow-x:hidden;cursor:default}
+body.locked{overflow:hidden}
+a{color:inherit}
+img,svg{display:block;max-width:100%}
+::selection{background:var(--red);color:var(--paper)}
+:focus-visible{outline:3px solid #ff5a6e;outline-offset:3px;border-radius:4px}
+.skip{position:fixed;left:16px;top:-60px;z-index:200;background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:8px;font-weight:600;text-decoration:none}
+.skip:focus{top:16px}
+.proto{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:85;font-size:10px;letter-spacing:.2em;text-transform:uppercase;background:var(--gold);color:var(--ink);padding:6px 12px;border-radius:99px;font-weight:700;white-space:nowrap}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* grão de papel */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- PORTÃO: REI ---------- */
+#gate{position:fixed;inset:0;z-index:100;background:var(--ink);display:grid;place-items:center;text-align:center;padding:24px;transition:opacity 1.1s ease,visibility 1.1s}
+#gate.gone{opacity:0;visibility:hidden}
+.gate-inner{display:grid;gap:28px;justify-items:center}
+.gate-kanji{font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(90px,22vw,200px);line-height:1;color:var(--paper);position:relative}
+.gate-kanji span{display:inline-block;opacity:0;transform:translateY(20px);animation:rise 1.2s cubic-bezier(.2,.7,.1,1) forwards}
+.gate-kanji span:nth-child(2){animation-delay:.25s}
+.gate-sub{font-size:13px;letter-spacing:.4em;text-transform:uppercase;color:var(--paper-dim);opacity:0;animation:fade 1s .9s forwards}
+.rei-btn{position:relative;width:112px;height:112px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--paper);cursor:pointer;font:600 12px Inter,sans-serif;letter-spacing:.3em;text-transform:uppercase;opacity:0;animation:fade 1s 1.3s forwards;transition:border-color .3s}
+.rei-btn:hover,.rei-btn:focus-visible{border-color:var(--red);outline:none}
+.rei-btn svg{position:absolute;inset:-1px;width:114px;height:114px;transform:rotate(-90deg)}
+.rei-btn circle{fill:none;stroke:var(--red);stroke-width:2;stroke-dasharray:352;stroke-dashoffset:352}
+.rei-btn.holding circle{transition:stroke-dashoffset 1.2s linear;stroke-dashoffset:0}
+.gate-hint{font-size:12px;color:var(--paper-dim);opacity:0;animation:fade 1s 1.6s forwards}
+.gate-skip{background:none;border:0;color:var(--paper-dim);font:500 12px Inter,sans-serif;text-decoration:underline;cursor:pointer;opacity:0;animation:fade 1s 1.8s forwards;padding:8px}
+.gate-skip:hover{color:var(--paper)}
+.bow{position:fixed;inset:0;pointer-events:none;display:grid;place-items:center;z-index:101}
+@keyframes rise{to{opacity:1;transform:none}}
+@keyframes fade{to{opacity:1}}
+
+/* ---------- FAIXA (progresso) ---------- */
+#belt{position:fixed;left:0;top:0;height:5px;width:0;background:var(--belt);z-index:80;transition:background-color .6s ease;box-shadow:0 0 18px rgba(0,0,0,.5)}
+#belt-label{position:fixed;right:16px;top:14px;z-index:80;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--paper-dim);background:rgba(11,11,12,.7);backdrop-filter:blur(8px);padding:6px 10px;border:1px solid var(--line);border-radius:99px;display:flex;gap:8px;align-items:center}
+#belt-label i{width:18px;height:6px;border-radius:2px;background:var(--belt);display:inline-block;transition:background-color .6s}
+
+/* ---------- NAV ---------- */
+nav{position:fixed;left:16px;top:10px;z-index:80;display:flex;gap:4px;align-items:center}
+.logo{font-family:"Shippori Mincho",serif;font-weight:800;font-size:22px;text-decoration:none;padding:4px 10px;background:rgba(11,11,12,.7);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:99px;line-height:1.3}
+.logo b{color:var(--red)}
+
+/* ---------- HERO ---------- */
+.hero{min-height:100svh;position:relative;display:grid;align-items:end;padding:120px var(--gutter) 64px;overflow:hidden}
+.hero-kanji{position:absolute;right:-4vw;top:50%;transform:translateY(-50%);font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(220px,46vw,720px);line-height:.9;writing-mode:vertical-rl;color:transparent;-webkit-text-stroke:1px rgba(242,237,227,.14);user-select:none;pointer-events:none}
+.sun{position:absolute;width:clamp(240px,40vw,560px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 40%,var(--red),var(--red-deep) 70%);right:12vw;top:16%;filter:blur(.3px);box-shadow:0 0 120px rgba(208,20,44,.35);will-change:transform}
+.hero-content{position:relative;z-index:2;max-width:1100px}
+.eyebrow{font-size:12px;letter-spacing:.35em;text-transform:uppercase;color:var(--paper-dim);display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.eyebrow::before{content:"";width:36px;height:1px;background:var(--red)}
+h1{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:clamp(64px,14vw,210px);line-height:.86;letter-spacing:-.01em;text-transform:uppercase}
+h1 .line{display:block;overflow:hidden}
+h1 .line span{display:block;transform:translateY(105%);transition:transform 1.2s cubic-bezier(.2,.7,.1,1)}
+.ready h1 .line span{transform:none}
+.ready h1 .line:nth-child(2) span{transition-delay:.12s}
+h1 .outline{color:transparent;-webkit-text-stroke:1.5px var(--paper)}
+.hero-lede{margin-top:28px;max-width:560px;font-size:clamp(16px,1.6vw,19px);color:var(--paper-dim);font-weight:300}
+.hero-lede strong{color:var(--paper);font-weight:500}
+.hero-meta{margin-top:40px;display:flex;flex-wrap:wrap;gap:10px}
+.chip{font-size:12px;letter-spacing:.08em;padding:8px 14px;border:1px solid var(--line);border-radius:99px;color:var(--paper-dim);display:inline-flex;gap:8px;align-items:center}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--red)}
+.scroll-cue{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);font-size:10px;letter-spacing:.35em;text-transform:uppercase;color:var(--muted);display:grid;justify-items:center;gap:8px;z-index:2}
+.scroll-cue::after{content:"";width:1px;height:40px;background:linear-gradient(var(--paper),transparent);animation:cue 2s infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---------- SEÇÕES ---------- */
+section{position:relative;padding:clamp(80px,12vw,160px) var(--gutter)}
+.sec-head{display:grid;grid-template-columns:auto 1fr;gap:clamp(16px,3vw,40px);align-items:start;margin-bottom:clamp(40px,6vw,80px);max-width:1200px}
+.sec-num{font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(48px,7vw,96px);line-height:1;color:var(--red)}
+.sec-kicker{font-size:12px;letter-spacing:.35em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+h2{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:clamp(40px,7vw,96px);line-height:.95;text-transform:uppercase}
+h2 em{font-style:normal;color:transparent;-webkit-text-stroke:1.2px var(--paper)}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 1s ease,transform 1s cubic-bezier(.2,.7,.1,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- MANIFESTO ---------- */
+.manifesto{background:var(--paper);color:var(--ink)}
+.manifesto p.big{font-family:"Shippori Mincho",serif;font-weight:500;font-size:clamp(26px,4.2vw,58px);line-height:1.25;max-width:1150px}
+.manifesto .word{opacity:.12;transition:opacity .4s}
+.manifesto .word.on{opacity:1}
+.manifesto .word.red{color:var(--red)}
+.manifesto .sig{margin-top:48px;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#6b655b}
+
+/* ---------- JORNADA (timeline horizontal) ---------- */
+.journey{padding-left:0;padding-right:0}
+.journey .sec-head{padding:0 var(--gutter)}
+.track-wrap{position:relative}
+.track{display:flex;gap:clamp(16px,2vw,28px);overflow-x:auto;scroll-snap-type:x mandatory;padding:8px var(--gutter) 40px;scrollbar-width:none;cursor:grab}
+.track::-webkit-scrollbar{display:none}
+.track.drag{cursor:grabbing;scroll-snap-type:none}
+.card{scroll-snap-align:start;flex:0 0 min(84vw,420px);background:var(--ink-2);border:1px solid var(--line);border-radius:18px;padding:30px 28px 32px;position:relative;overflow:hidden;min-height:440px;display:flex;flex-direction:column;transition:transform .5s cubic-bezier(.2,.7,.1,1),border-color .4s;user-select:none}
+.card:hover{transform:translateY(-6px);border-color:rgba(208,20,44,.6)}
+.card .flag{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--paper-dim);display:flex;align-items:center;gap:10px}
+.card .flag b{width:22px;height:14px;border-radius:2px;display:inline-block;flex:none}
+.card .year{font-family:Anton,sans-serif;font-size:clamp(56px,8vw,88px);line-height:1;margin:22px 0 12px;color:var(--paper)}
+.card h3{font-family:"Shippori Mincho",serif;font-weight:800;font-size:24px;line-height:1.2;margin-bottom:14px}
+.card p{color:var(--paper-dim);font-size:15px}
+.card .tag{margin-top:auto;padding-top:22px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.card .bg{position:absolute;right:-14px;bottom:-40px;font-family:"Shippori Mincho",serif;font-weight:800;font-size:200px;line-height:1;color:rgba(242,237,227,.035);pointer-events:none}
+.track-ctrl{display:flex;gap:10px;padding:0 var(--gutter);align-items:center}
+.track-ctrl button{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--paper);cursor:pointer;font-size:18px;transition:background .3s,border-color .3s}
+.track-ctrl button:hover{background:var(--red);border-color:var(--red)}
+.track-ctrl .bar{flex:1;height:1px;background:var(--line);position:relative;margin-left:12px;max-width:420px}
+.track-ctrl .bar i{position:absolute;left:0;top:-1px;height:3px;width:20%;background:var(--red);transition:left .2s}
+
+/* ---------- MAPA ---------- */
+.map-sec{background:var(--ink-2)}
+.map-box{position:relative;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#1b1b1f,var(--ink) 80%);max-width:1300px}
+#map{width:100%;height:auto;aspect-ratio:2/1}
+.map-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.map-legend button{background:var(--ink-2);border:0;color:var(--paper);text-align:left;padding:18px 20px;cursor:pointer;font:inherit;transition:background .3s}
+.map-legend button:hover,.map-legend button.active{background:#1d1d21}
+.map-legend button.active .ln{color:var(--red)}
+.map-legend .ln{font-family:Anton,sans-serif;font-size:13px;letter-spacing:.15em;color:var(--muted);display:block;transition:color .3s}
+.map-legend strong{display:block;font-family:"Shippori Mincho",serif;font-size:20px;font-weight:800}
+.map-legend small{color:var(--paper-dim);font-size:13px}
+
+/* ---------- NÚMEROS ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:22px;overflow:hidden;max-width:1300px}
+.stat{background:var(--ink);padding:40px 30px;min-height:260px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.stat .n{font-family:Anton,sans-serif;font-size:clamp(80px,10vw,140px);line-height:.9;color:var(--paper)}
+.stat .n sup{font-size:.4em;color:var(--red);vertical-align:top;margin-left:4px}
+.stat .l{margin-top:auto;padding-top:24px;color:var(--paper-dim);font-size:15px;max-width:260px}
+.stat .src{font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.04em}
+.stat:hover{background:#121214}
+
+/* ---------- HISTÓRICO ---------- */
+.moments{display:grid;gap:0;max-width:1200px;border-top:1px solid var(--line)}
+.moment{display:grid;grid-template-columns:140px 1fr auto;gap:clamp(16px,3vw,48px);padding:34px 0;border-bottom:1px solid var(--line);align-items:center;position:relative;cursor:default}
+.moment::before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(208,20,44,.18),transparent);transition:width .6s cubic-bezier(.2,.7,.1,1);z-index:-1}
+.moment:hover::before{width:100%}
+.moment .y{font-family:Anton,sans-serif;font-size:42px;line-height:1;color:var(--red)}
+.moment h3{font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(20px,2.4vw,30px);line-height:1.2}
+.moment p{color:var(--paper-dim);font-size:15px;margin-top:6px;max-width:640px}
+.medal{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;font-family:Anton,sans-serif;font-size:14px;color:var(--ink);flex:none;box-shadow:inset 0 -6px 12px rgba(0,0,0,.25)}
+.medal.gold{background:linear-gradient(145deg,#f0d48a,#b8892e)}
+.medal.bronze{background:linear-gradient(145deg,#f0c09a,#b87a48)}
+.medal.star{background:var(--paper);font-size:11px;text-align:center;line-height:1.05}
+
+/* ---------- MÉTODO ---------- */
+.method{background:var(--paper);color:var(--ink)}
+.method h2 em{-webkit-text-stroke-color:var(--ink)}
+.method .sec-kicker{color:#6b655b}
+.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;max-width:1300px}
+.pillar{border:1px solid rgba(11,11,12,.14);border-radius:18px;padding:30px 26px;min-height:300px;display:flex;flex-direction:column;background:#ece6da;transition:background .4s,color .4s,transform .4s;position:relative;overflow:hidden}
+.pillar:hover{background:var(--ink);color:var(--paper);transform:translateY(-4px)}
+.pillar:hover p{color:var(--paper-dim)}
+.pillar .k{font-family:"Shippori Mincho",serif;font-weight:800;font-size:58px;line-height:1;color:var(--red)}
+.pillar h3{font-family:Anton,sans-serif;font-weight:400;font-size:26px;text-transform:uppercase;margin:auto 0 10px;padding-top:30px;line-height:1.05}
+.pillar p{color:#4f4a42;font-size:15px;transition:color .4s}
+.cats{margin-top:56px;max-width:1300px}
+.cats-title{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#6b655b;margin-bottom:16px}
+.cats-row{display:flex;flex-wrap:wrap;gap:10px}
+.cats-row span{font-family:Anton,sans-serif;font-size:clamp(22px,3vw,36px);padding:10px 22px;border:1.5px solid var(--ink);border-radius:99px;transition:background .3s,color .3s}
+.cats-row span:hover{background:var(--red);border-color:var(--red);color:var(--paper)}
+
+/* ---------- IPPON (jogo) ---------- */
+.dojo{text-align:center;overflow:hidden}
+.dojo .sec-head{margin-left:auto;margin-right:auto;text-align:left}
+.game{max-width:760px;margin:0 auto;border:1px solid var(--line);border-radius:22px;padding:clamp(24px,4vw,44px);background:
+  repeating-linear-gradient(90deg,transparent 0 calc(50% - 1px),rgba(242,237,227,.05) calc(50% - 1px) 50%),
+  linear-gradient(#18181b,#101012)}
+.game-score{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:26px;gap:12px;flex-wrap:wrap}
+.game-score b{color:var(--paper);font-family:Anton,sans-serif;font-size:20px;letter-spacing:.05em;margin-left:6px}
+.meter{position:relative;height:64px;border-radius:12px;background:#0b0b0c;border:1px solid var(--line);overflow:hidden}
+.zone{position:absolute;top:0;bottom:0;background:rgba(208,20,44,.25);border-left:2px solid var(--red);border-right:2px solid var(--red)}
+.zone::after{content:"KUZUSHI";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;letter-spacing:.3em;color:#ff7a8a;font-weight:700}
+.needle{position:absolute;top:6px;bottom:6px;width:4px;border-radius:4px;background:var(--paper);box-shadow:0 0 14px var(--paper);left:0}
+.verdict{font-family:Anton,sans-serif;font-size:clamp(48px,10vw,110px);line-height:1;height:1.1em;margin:28px 0 8px;text-transform:uppercase;letter-spacing:.02em}
+.verdict.ippon{color:var(--red);animation:slam .5s cubic-bezier(.2,1.6,.4,1)}
+.verdict.waza{color:var(--gold);animation:slam .5s cubic-bezier(.2,1.6,.4,1)}
+.verdict.miss{color:var(--muted)}
+@keyframes slam{from{transform:scale(1.8);opacity:0}to{transform:none;opacity:1}}
+.game-help{color:var(--paper-dim);font-size:14px;margin-bottom:24px;min-height:1.6em}
+.btn{display:inline-flex;align-items:center;gap:12px;padding:16px 28px;border-radius:99px;background:var(--red);color:var(--paper);border:0;font:600 14px Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:transform .3s,background .3s}
+.btn:hover{transform:translateY(-2px);background:#e2213a}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--paper);background:transparent}
+.game-note{margin-top:22px;font-size:12px;color:var(--muted);max-width:520px;margin-left:auto;margin-right:auto}
+
+/* ---------- CTA ---------- */
+.cta{min-height:90svh;display:grid;place-items:center;text-align:center;overflow:hidden;background:var(--red)}
+.cta-bg{position:absolute;inset:0;display:grid;place-items:center;font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(260px,60vw,900px);color:rgba(0,0,0,.12);line-height:1;pointer-events:none;user-select:none}
+.cta-inner{position:relative;z-index:2;display:grid;gap:24px;justify-items:center}
+.cta h2{font-size:clamp(52px,11vw,170px)}
+.cta p{max-width:540px;font-size:18px;color:var(--paper)}
+.cta .btn{background:var(--ink)}
+.cta .btn:hover{background:#000}
+.cta .btn.ghost{background:transparent;border-color:rgba(242,237,227,.5)}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+
+/* ---------- FONTES / FOOTER ---------- */
+footer{padding:80px var(--gutter) 40px;border-top:1px solid var(--line)}
+.sources{max-width:1100px}
+.sources h3{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;font-weight:500}
+.sources ol{list-style:none;display:grid;gap:10px;counter-reset:s}
+.sources li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;font-size:14px;color:var(--paper-dim)}
+.sources li::before{content:counter(s,decimal-leading-zero);color:var(--red);font-family:Anton,sans-serif}
+.sources a{text-decoration:none;border-bottom:1px solid var(--line);transition:border-color .3s,color .3s}
+.sources a:hover{color:var(--paper);border-color:var(--red)}
+.foot{margin-top:60px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--muted)}
+.foot .logo{background:none;border:0;padding:0;font-size:28px}
+.foot a{color:var(--paper-dim)}
+.legal-note{margin-top:40px;font-size:12px;color:var(--paper-dim);max-width:900px;line-height:1.7}
+
+/* cursor de tinta (desktop) */
+#ink{position:fixed;left:0;top:0;width:14px;height:14px;border-radius:50%;background:var(--red);pointer-events:none;z-index:95;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .25s,height .25s,opacity .3s;opacity:0}
+#ink.big{width:54px;height:54px;opacity:.5}
+@media (hover:none){#ink{display:none}}
+
+@media (max-width:720px){
+  .moment{grid-template-columns:1fr auto;gap:10px 16px}
+  .moment .y{grid-column:1/-1;font-size:32px}
+  .sun{right:-20vw;top:12%}
+  .hero-kanji{right:-14vw;opacity:.7}
+  #belt-label{top:auto;bottom:14px;right:16px}
+  .sec-head{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+  .manifesto .word{opacity:1}
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- PORTÃO -->
+<div id="gate" role="dialog" aria-modal="true" aria-label="Entrada">
+  <div class="gate-inner">
+    <div class="gate-kanji" aria-hidden="true" lang="ja"><span>柔</span><span>道</span></div>
+    <div class="gate-sub">Jū · Dō — o caminho suave</div>
+    <button class="rei-btn" id="rei" aria-label="Segure para fazer o rei e entrar" autofocus>
+      <svg viewBox="0 0 114 114" aria-hidden="true"><circle cx="57" cy="57" r="56"/></svg>
+      Rei
+    </button>
+    <div class="gate-hint">Segure para cumprimentar e entrar no dojô</div>
+    <button class="gate-skip" id="skipGate">Entrar direto</button>
+  </div>
+</div>
+
+<a class="skip" href="#conteudo" inert>Pular para o conteúdo</a>
+<div class="proto" role="note">Protótipo · não é o site oficial</div>
+
+<div id="belt"></div>
+<div id="belt-label" aria-hidden="true"><i></i><span>Faixa branca</span></div>
+<div id="ink" aria-hidden="true"></div>
+
+<nav aria-label="Principal" inert><a class="logo" href="#top" aria-label="Início">G<b>V</b></a></nav>
+
+<main id="top" inert>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="sun" id="sun" aria-hidden="true"></div>
+  <div class="hero-kanji" aria-hidden="true" lang="ja">柔道</div>
+  <div class="hero-content" id="conteudo" tabindex="-1">
+    <div class="eyebrow">Treinador de judô de alto rendimento</div>
+    <h1>
+      <span class="line"><span>Gabriel</span></span>
+      <span class="line"><span class="outline">Vicentini</span></span>
+    </h1>
+    <p class="hero-lede">Capixaba, formado em Educação Física e com uma vida no tatame. Levou atletas do <strong>Espírito Santo</strong> ao circuito mundial, conduziu o <strong>Paraguai</strong> a resultados inéditos e hoje trabalha na <strong>Arábia Saudita</strong>.</p>
+    <div class="hero-meta">
+      <span class="chip"><span class="dot"></span>Brasil</span>
+      <span class="chip"><span class="dot"></span>Líbano</span>
+      <span class="chip"><span class="dot"></span>Paraguai</span>
+      <span class="chip"><span class="dot"></span>Arábia Saudita</span>
+    </div>
+  </div>
+  <div class="scroll-cue">Role</div>
+</header>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="manifesto">
+  <p class="big" id="mword">Ele foi um atleta de nível médio. Faltava constância e disciplina para ir mais longe. Então trocou o lado do tatame: de atleta virou professor, de professor virou treinador. E encontrou ali a sua verdadeira paixão.</p>
+  <p class="sig">— Trajetória contada pelo próprio Gabriel ao ES Hoje, janeiro de 2025</p>
+</section>
+
+<!-- JORNADA -->
+<section class="journey" id="jornada">
+  <div class="sec-head reveal">
+    <div class="sec-num" aria-hidden="true" lang="ja">壱</div>
+    <div>
+      <div class="sec-kicker">Capítulo 01 · A jornada</div>
+      <h2>Do tatame<br><em>ao mundo</em></h2>
+    </div>
+  </div>
+  <div class="track-wrap">
+    <div class="track" id="track" tabindex="0" role="region" aria-label="Linha do tempo: use as setas para rolar">
+      <article class="card">
+        <div class="flag"><b style="background:linear-gradient(#009c3b 0 33%,#ffdf00 33% 66%,#002776 66%)"></b>Espírito Santo · Brasil</div>
+        <div class="year">Atleta</div>
+        <h3>O começo no tatame</h3>
+        <p>Competiu e conquistou alguns resultados nacionais e internacionais. Ele mesmo se define como um atleta de nível médio, e foi isso que o levou a olhar o judô por outro ângulo.</p>
+        <div class="tag">A origem</div>
+        <div class="bg" aria-hidden="true" lang="ja">始</div>
+      </article>
+      <article class="card">
+        <div class="flag"><b style="background:linear-gradient(#009c3b 0 33%,#ffdf00 33% 66%,#002776 66%)"></b>Vila Velha · ES</div>
+        <div class="year">2004</div>
+        <h3>Educação Física, com foco no atleta</h3>
+        <p>Incentivado pelo irmão, se formou em Educação Física, Esporte e Lazer pelo Centro Universitário Vila Velha (UVV). Ainda na faculdade, passou de atleta a professor e de professor a treinador.</p>
+        <div class="tag">Formação</div>
+        <div class="bg" aria-hidden="true" lang="ja">学</div>
+      </article>
+      <article class="card">
+        <div class="flag"><b style="background:linear-gradient(#009c3b 0 33%,#ffdf00 33% 66%,#002776 66%)"></b>Espírito Santo · Brasil</div>
+        <div class="year">COES</div>
+        <h3>Os principais judocas do estado</h3>
+        <p>Treinou no Centro Olímpico do Espírito Santo (COES) e em vários clubes capixabas. Dirigiu os principais judocas do estado, com títulos do sub-13 ao sênior e atletas convocados para a Seleção Brasileira.</p>
+        <div class="tag">Base &amp; alto rendimento</div>
+        <div class="bg" aria-hidden="true" lang="ja">道</div>
+      </article>
+      <article class="card">
+        <div class="flag"><b style="background:linear-gradient(#ed1c24 0 25%,#fff 25% 75%,#ed1c24 75%)"></b>Líbano</div>
+        <div class="year">Olímpico</div>
+        <h3>Técnico de atletas da seleção libanesa</h3>
+        <p>Treinou o atleta olímpico Nacif Elias, nascido em Vitória, e a judoca Amanda Dutra, ambos da seleção do Líbano. Com ele, Nacif conquistou medalhas em Grand Slam, Grand Prix e Campeonato Continental.</p>
+        <div class="tag">Circuito mundial</div>
+        <div class="bg" aria-hidden="true" lang="ja">勝</div>
+      </article>
+      <article class="card">
+        <div class="flag"><b style="background:linear-gradient(#d52b1e 0 33%,#fff 33% 66%,#0038a8 66%)"></b>Paraguai</div>
+        <div class="year">5 anos</div>
+        <h3>Técnico da seleção paraguaia</h3>
+        <p>Mudou-se para o Paraguai para assumir a seleção. Segundo ele, o país nunca tinha ganhado medalha em eventos oficiais da Federação Internacional de Judô. Em cinco anos, foram 87 medalhas internacionais.</p>
+        <div class="tag">Resultado inédito</div>
+        <div class="bg" aria-hidden="true" lang="ja">史</div>
+      </article>
+      <article class="card">
+        <div class="flag"><b style="background:#006c35"></b>Arábia Saudita</div>
+        <div class="year">2025</div>
+        <h3>Federação Saudita de Judô</h3>
+        <p>Em janeiro de 2025 embarcou para integrar a comissão técnica da Federação Saudita de Judô, contratado para dirigir e gerir uma das regiões do país. Seu perfil profissional o apresenta como técnico do clube Al-Qadsiah.</p>
+        <div class="tag">Agora</div>
+        <div class="bg" aria-hidden="true" lang="ja">今</div>
+      </article>
+    </div>
+    <div class="track-ctrl">
+      <button id="prev" aria-label="Anterior">←</button>
+      <button id="next" aria-label="Próximo">→</button>
+      <div class="bar"><i id="tbar"></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- MAPA -->
+<section class="map-sec" id="mapa">
+  <div class="sec-head reveal">
+    <div class="sec-num" aria-hidden="true" lang="ja">弐</div>
+    <div>
+      <div class="sec-kicker">Capítulo 02 · Território</div>
+      <h2>Quatro países,<br><em>um caminho</em></h2>
+    </div>
+  </div>
+  <div class="map-box reveal">
+    <svg id="map" viewBox="0 0 1000 500" role="img" aria-label="Mapa com o percurso Brasil, Líbano, Paraguai e Arábia Saudita"></svg>
+    <div class="map-legend" id="legend">
+      <button data-i="0"><span class="ln">01</span><strong>Vitória · ES</strong><small>Formação e alto rendimento capixaba</small></button>
+      <button data-i="1"><span class="ln">02</span><strong>Líbano</strong><small>Atletas da seleção libanesa</small></button>
+      <button data-i="2"><span class="ln">03</span><strong>Assunção · PY</strong><small>Técnico da seleção paraguaia</small></button>
+      <button data-i="3"><span class="ln">04</span><strong>Arábia Saudita</strong><small>Federação Saudita de Judô</small></button>
+    </div>
+  </div>
+</section>
+
+<!-- NÚMEROS -->
+<section id="numeros">
+  <div class="sec-head reveal">
+    <div class="sec-num" aria-hidden="true" lang="ja">参</div>
+    <div>
+      <div class="sec-kicker">Capítulo 03 · Números</div>
+      <h2>O placar<br><em>não mente</em></h2>
+    </div>
+  </div>
+  <div class="stats reveal">
+    <div class="stat"><div class="n"><span data-count="87">0</span></div><div class="l">medalhas internacionais de atletas do Paraguai sob seu comando, segundo Gabriel em entrevista.</div><div class="src">Fonte: ES Hoje, jan. 2025</div></div>
+    <div class="stat"><div class="n"><span data-count="5">0</span></div><div class="l">anos à frente do judô paraguaio.</div><div class="src">Fonte: ES Hoje, jan. 2025</div></div>
+    <div class="stat"><div class="n"><span data-count="24">0</span><sup>+</sup></div><div class="l">anos de experiência no judô, segundo seu perfil profissional.</div><div class="src">Fonte: perfil profissional no LinkedIn</div></div>
+    <div class="stat"><div class="n"><span data-count="4">0</span></div><div class="l">países no currículo: Brasil, Líbano, Paraguai e Arábia Saudita.</div><div class="src">Fontes: ES Hoje · Folha Vitória</div></div>
+  </div>
+</section>
+
+<!-- MOMENTOS -->
+<section id="historia" style="padding-top:0">
+  <div class="sec-head reveal">
+    <div class="sec-num" aria-hidden="true" lang="ja">肆</div>
+    <div>
+      <div class="sec-kicker">Capítulo 04 · Momentos históricos</div>
+      <h2>Primeiras vezes<br><em>na história</em></h2>
+    </div>
+  </div>
+  <div class="moments">
+    <div class="moment reveal">
+      <div class="y">2020</div>
+      <div><h3>A primeira medalha pan-americana do Paraguai</h3><p>Bronze de Marcelo Vicentini (60 kg), filho e atleta de Gabriel, no Pan-Americano Cadete de Guadalajara, no México. Segundo Gabriel, o país nunca tinha vencido uma luta nesse campeonato. Ele disse que valorizava mais o esforço, a dedicação e a resiliência do filho do que a própria medalha.</p></div>
+      <div class="medal bronze" role="img" aria-label="Medalha de bronze">3º</div>
+    </div>
+    <div class="moment reveal">
+      <div class="y">2020</div>
+      <div><h3>Campeões pan-americanos em Lima</h3><p>Na Copa Pan-Americana Júnior de Lima, Marcelo Vicentini e Ángel Gini levaram o ouro para o Paraguai, e Saúl Arévalo ficou com a prata.</p></div>
+      <div class="medal gold" role="img" aria-label="Medalha de ouro">1º</div>
+    </div>
+    <div class="moment reveal">
+      <div class="y">2023</div>
+      <div><h3>Número 1 do ranking mundial júnior</h3><p>Aos 19 anos, Marcelo Vicentini (-66 kg) foi ouro na Copa Pan-Americana Júnior de Santiago, no Chile, e chegou ao topo do ranking mundial júnior. O professor Gabriel Vicentini acompanhou a delegação.</p></div>
+      <div class="medal star" role="img" aria-label="Número 1 do ranking">Nº<br>1</div>
+    </div>
+    <div class="moment reveal">
+      <div class="y">Líbano</div>
+      <div><h3>Medalhas no circuito mundial</h3><p>Como técnico de Nacif Elias, atleta olímpico pelo Líbano, Gabriel esteve por trás de medalhas em Grand Slam, Grand Prix, Campeonato Continental e Opens internacionais.</p></div>
+      <div class="medal gold" role="img" aria-label="Medalhas em Grand Slam">GS</div>
+    </div>
+  </div>
+</section>
+
+<!-- MÉTODO -->
+<section class="method" id="metodo">
+  <div class="sec-head reveal">
+    <div class="sec-num" aria-hidden="true" lang="ja">伍</div>
+    <div>
+      <div class="sec-kicker">Capítulo 05 · O método</div>
+      <h2>Ciência<br><em>no tatame</em></h2>
+    </div>
+  </div>
+  <div class="pillars">
+    <div class="pillar reveal"><div class="k" lang="ja" aria-hidden="true">五</div><h3>Atletas olímpicos</h3><p>Foi técnico de Nacif Elias, atleta olímpico pelo Líbano, e de seleções nacionais em eventos da Federação Internacional de Judô (IJF).</p></div>
+    <div class="pillar reveal"><div class="k" lang="ja" aria-hidden="true">学</div><h3>IJF Academy</h3><p>Seu perfil no Instagram cita a IJF Academy, o programa de formação de treinadores da Federação Internacional de Judô.</p></div>
+    <div class="pillar reveal"><div class="k" lang="ja" aria-hidden="true">力</div><h3>Alto rendimento</h3><p>Na graduação em Educação Física, focou na preparação de atletas. Seu perfil cita formação em alto rendimento.</p></div>
+    <div class="pillar reveal"><div class="k" lang="ja" aria-hidden="true">観</div><h3>Análise tática</h3><p>Seu perfil o apresenta como analista tático: ler a luta, o adversário e o momento certo de atacar.</p></div>
+  </div>
+  <div class="cats reveal">
+    <div class="cats-title">Atletas campeões em todas as categorias</div>
+    <div class="cats-row"><span>Sub-13</span><span>Sub-15</span><span>Sub-18</span><span>Sub-21</span><span>Sênior</span></div>
+  </div>
+</section>
+
+<!-- DOJÔ: IPPON -->
+<section class="dojo" id="dojo">
+  <div class="sec-head reveal" style="max-width:760px">
+    <div class="sec-num" aria-hidden="true" lang="ja">陸</div>
+    <div>
+      <div class="sec-kicker">Capítulo 06 · Experimente</div>
+      <h2>Sinta o<br><em>ippon</em></h2>
+    </div>
+  </div>
+  <div class="game reveal">
+    <div class="game-score"><span>Ippon<b id="sIppon">0</b></span><span>Waza-ari<b id="sWaza">0</b></span><span>Tentativas<b id="sTry">0</b></span></div>
+    <div class="meter" id="meter"><div class="zone" id="zone"></div><div class="needle" id="needle"></div></div>
+    <div class="verdict" id="verdict" aria-live="polite"></div>
+    <div class="game-help" id="help">No judô, a projeção começa no <strong>kuzushi</strong>: tirar o adversário do equilíbrio. Ataque quando a agulha estiver na zona vermelha.</div>
+    <button class="btn" id="atk">Atacar <span aria-hidden="true">→</span></button>
+    <p class="game-note">Toque, clique ou aperte espaço. A cada ippon, a zona diminui, como acontece contra adversários melhores.</p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contato">
+  <div class="cta-bg" aria-hidden="true" lang="ja">礼</div>
+  <div class="cta-inner reveal">
+    <div class="sec-kicker" style="color:var(--paper)">Hajime</div>
+    <h2>Pronto para<br>entrar no tatame?</h2>
+    <p>Fale direto com o Coach Gabriel Vicentini pelo Instagram.</p>
+    <div class="cta-row">
+      <a class="btn" href="https://www.instagram.com/vicentinijudo/" target="_blank" rel="noopener">@vicentinijudo <span aria-hidden="true">↗</span></a>
+      <a class="btn ghost" href="https://www.instagram.com/vicentinisports/" target="_blank" rel="noopener">@vicentinisports <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer inert>
+  <div class="sources">
+    <h3>Só verdades · Fontes de tudo o que está nesta página</h3>
+    <ol>
+      <li><a href="https://eshoje.com.br/esportes/2025/01/treinador-capixaba-e-contratado-pela-federacao-saudita-de-judo/" target="_blank" rel="noopener">ES Hoje: Treinador capixaba é contratado pela Federação Saudita de Judô (jan. 2025)</a></li>
+      <li><a href="https://noticiases.com.br/treinador-capixaba-judo/" target="_blank" rel="noopener">Notícias ES: Treinador capixaba Gabriel Vicentini é contratado pela Federação Saudita de Judô</a></li>
+      <li><a href="https://www.folhavitoria.com.br/esportes/judoca-capixaba-marcelo-vicentini-vive-grande-fase-nas-selecoes-de-base-do-paraguai/" target="_blank" rel="noopener">Folha Vitória: Judoca capixaba Marcelo Vicentini vive grande fase nas seleções de base do Paraguai</a></li>
+      <li><a href="https://www.espiritosantonoticias.com.br/judoca-capixaba-marcelo-vicentini-e-medalha-de-bronze-no-campeonato-pan-americano/" target="_blank" rel="noopener">Espírito Santo Notícias: Marcelo Vicentini é bronze no Campeonato Pan-Americano (2020)</a></li>
+      <li><a href="https://infonegocios.com.py/infodeportes/con-una-gestion-mejorada-el-judo-paraguayo-avanza-y-culmina-el-2020-con-varias-medallas" target="_blank" rel="noopener">InfoNegocios: El judo paraguayo culmina el 2020 con varias medallas</a></li>
+      <li><a href="https://www.lanacion.com.py/estilodevida/2023/06/02/marcelo-vicentini-el-paraguayo-numero-uno-del-mundo-en-judo/" target="_blank" rel="noopener">La Nación (PY): Marcelo Vicentini, el paraguayo número uno del mundo en judo (2023)</a></li>
+      <li><a href="https://www.escavador.com/sobre/1407983/gabriel-vicentini" target="_blank" rel="noopener">Escavador: formação acadêmica (Educação Física, UVV, 2004)</a></li>
+      <li><a href="https://www.linkedin.com/in/gabriel-vicentini-vicentinisports-2b7449196/" target="_blank" rel="noopener">LinkedIn: Gabriel Vicentini // VicentiniSports</a></li>
+      <li><a href="https://www.instagram.com/vicentinijudo/" target="_blank" rel="noopener">Instagram: @vicentinijudo (bio do perfil)</a></li>
+    </ol>
+  </div>
+  <p class="legal-note">Os fatos desta página foram reunidos a partir das reportagens e perfis públicos listados acima. Números e qualificações informados pelo próprio Gabriel estão sinalizados como tal. Nomes de entidades e clubes (IJF, Federação Saudita de Judô, Al-Qadsiah, COES e outros) pertencem a seus titulares e aparecem apenas para descrever a trajetória, sem indicar parceria ou endosso. Este site não usa imagens de terceiros, não usa cookies, não tem formulários e não faz rastreamento. Fontes tipográficas Anton, Inter e Shippori Mincho sob a licença SIL Open Font License 1.1, hospedadas no próprio site.</p>
+  <div class="foot">
+    <span class="logo">G<b style="color:var(--red)">V</b></span>
+    <span><a href="privacidade.html">Política de privacidade</a> · <a href="termos.html">Termos de uso</a></span>
+    <span>Jita Kyoei: prosperidade mútua</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+
+  /* ---------- Portão: segure para fazer o rei ---------- */
+  const gate = $('#gate'), rei = $('#rei');
+  let holdT;
+  const enter = () => {
+    gate.classList.add('gone');
+    gate.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('locked');
+    $$('#top, nav, .skip, footer').forEach(e => e.inert = false);
+    $('#conteudo').focus({ preventScroll: true });
+    setTimeout(() => document.body.classList.add('ready'), 200);
+    try { sessionStorage.setItem('gv-rei', '1'); } catch (e) {}
+  };
+  const startHold = e => {
+    e.preventDefault();
+    rei.classList.add('holding');
+    holdT = setTimeout(enter, reduce ? 0 : 1200);
+  };
+  const endHold = () => { rei.classList.remove('holding'); clearTimeout(holdT); };
+  rei.addEventListener('pointerdown', startHold);
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => rei.addEventListener(ev, endHold));
+  rei.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) startHold(e); });
+  rei.addEventListener('keyup', endHold);
+  $('#skipGate').addEventListener('click', enter);
+  let seen = false;
+  try { seen = sessionStorage.getItem('gv-rei') === '1'; } catch (e) {}
+  if (seen) { gate.style.transition = 'none'; enter(); }
+
+  /* ---------- Faixa de progresso (ordem de faixas da CBJ) ---------- */
+  const belts = [
+    ['Branca', '#f2ede3'], ['Cinza', '#8f8f94'], ['Azul', '#1f5fd6'], ['Amarela', '#f2c81f'],
+    ['Laranja', '#f07c1a'], ['Verde', '#1f9a4a'], ['Roxa', '#7a3fc0'], ['Marrom', '#7a4a26'], ['Preta', '#1a1a1a']
+  ];
+  const belt = $('#belt'), bl = $('#belt-label span'), blI = $('#belt-label i');
+  let lastB = -1;
+  const onScroll = () => {
+    const h = document.documentElement.scrollHeight - innerHeight;
+    const p = h > 0 ? scrollY / h : 0;
+    belt.style.width = (p * 100) + '%';
+    const i = Math.min(belts.length - 1, Math.floor(p * belts.length));
+    if (i !== lastB) {
+      lastB = i;
+      const [n, c] = belts[i];
+      belt.style.backgroundColor = c;
+      blI.style.backgroundColor = c;
+      blI.style.outline = i === 8 ? '1px solid #d0142c' : 'none';
+      bl.textContent = 'Faixa ' + n.toLowerCase();
+    }
+    if (!reduce) $('#sun').style.transform = `translateY(${scrollY * .35}px)`;
+    manifesto();
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+
+  /* ---------- Manifesto palavra por palavra ---------- */
+  const mw = $('#mword');
+  const redWords = ['professor,', 'treinador.', 'paixão.'];
+  mw.innerHTML = mw.textContent.trim().split(/\s+/).map(w =>
+    `<span class="word${redWords.includes(w) ? ' red' : ''}">${w}</span>`).join(' ');
+  const words = $$('#mword .word');
+  function manifesto() {
+    const r = mw.getBoundingClientRect();
+    const start = innerHeight * .85, end = innerHeight * .35;
+    const p = Math.max(0, Math.min(1, (start - r.top) / (start - end + r.height * .6)));
+    const k = Math.round(p * words.length);
+    words.forEach((w, i) => w.classList.toggle('on', i < k));
+  }
+
+  /* ---------- Reveal ---------- */
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: .15 });
+  $$('.reveal').forEach(el => io.observe(el));
+
+  /* ---------- Contadores ---------- */
+  const cio = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target, to = +el.dataset.count, t0 = performance.now(), d = reduce ? 1 : 1800;
+    const tick = t => {
+      const p = Math.min(1, (t - t0) / d);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - p, 4)));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    cio.unobserve(el);
+  }), { threshold: .5 });
+  $$('[data-count]').forEach(el => cio.observe(el));
+
+  /* ---------- Timeline horizontal ---------- */
+  const track = $('#track'), tbar = $('#tbar');
+  const step = () => track.querySelector('.card').offsetWidth + 24;
+  $('#next').onclick = () => track.scrollBy({ left: step(), behavior: 'smooth' });
+  $('#prev').onclick = () => track.scrollBy({ left: -step(), behavior: 'smooth' });
+  track.addEventListener('scroll', () => {
+    const m = track.scrollWidth - track.clientWidth;
+    tbar.style.left = (m > 0 ? track.scrollLeft / m * 80 : 0) + '%';
+  }, { passive: true });
+  let dx = null, sl = 0;
+  track.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; dx = e.clientX; sl = track.scrollLeft; track.classList.add('drag'); });
+  addEventListener('pointermove', e => { if (dx !== null) track.scrollLeft = sl - (e.clientX - dx); });
+  addEventListener('pointerup', () => { dx = null; track.classList.remove('drag'); });
+
+  /* ---------- Mapa (projeção equiretangular) ---------- */
+  const svg = $('#map'), NS = 'http://www.w3.org/2000/svg';
+  const P = (lat, lon) => [(lon + 180) / 360 * 1000, (90 - lat) / 180 * 500];
+  const pts = [
+    { n: 'Vitória', c: [-20.32, -40.34] },
+    { n: 'Beirute', c: [33.89, 35.50] },
+    { n: 'Assunção', c: [-25.26, -57.58] },
+    { n: 'Arábia Saudita', c: [26.28, 50.21] }
+  ].map(p => ({ ...p, xy: P(...p.c) }));
+  const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  // grade de pontos
+  const g = el('g', { fill: 'rgba(242,237,227,.13)' });
+  for (let x = 10; x < 1000; x += 20) for (let y = 10; y < 500; y += 20) g.appendChild(el('circle', { cx: x, cy: y, r: 1.1 }));
+  svg.appendChild(g);
+  // linha do equador e trópicos
+  [[0, .14], [23.4, .07], [-23.4, .07]].forEach(([lat, o]) => {
+    const y = P(lat, 0)[1];
+    svg.appendChild(el('line', { x1: 0, x2: 1000, y1: y, y2: y, stroke: `rgba(242,237,227,${o})`, 'stroke-dasharray': '4 6' }));
+  });
+  const arcs = [];
+  const order = [0, 1, 2, 3];
+  for (let i = 0; i < order.length - 1; i++) {
+    const [x1, y1] = pts[order[i]].xy, [x2, y2] = pts[order[i + 1]].xy;
+    const mx = (x1 + x2) / 2, my = Math.min(y1, y2) - Math.abs(x2 - x1) * .28;
+    const path = el('path', { d: `M${x1},${y1} Q${mx},${my} ${x2},${y2}`, fill: 'none', stroke: '#d0142c', 'stroke-width': 2, 'stroke-linecap': 'round' });
+    svg.appendChild(path);
+    const L = path.getTotalLength();
+    path.style.strokeDasharray = L; path.style.strokeDashoffset = L;
+    path.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(.6,0,.2,1)';
+    arcs.push(path);
+  }
+  const nodes = pts.map((p, i) => {
+    const grp = el('g', { transform: `translate(${p.xy[0]},${p.xy[1]})`, style: 'cursor:pointer' });
+    const pulse = el('circle', { r: 6, fill: 'none', stroke: '#d0142c', 'stroke-width': 1.5 });
+    if (!reduce) {
+      pulse.appendChild(el('animate', { attributeName: 'r', values: '6;22', dur: '2s', repeatCount: 'indefinite', begin: i * .4 + 's' }));
+      pulse.appendChild(el('animate', { attributeName: 'opacity', values: '1;0', dur: '2s', repeatCount: 'indefinite', begin: i * .4 + 's' }));
+    }
+    const dot = el('circle', { r: 6, fill: '#f2ede3', stroke: '#d0142c', 'stroke-width': 3 });
+    const label = el('text', { x: 14, y: i % 2 ? -12 : 22, fill: '#f2ede3', 'font-family': 'Inter,sans-serif', 'font-size': 15, 'font-weight': 600 });
+    label.textContent = `0${i + 1} ${p.n}`;
+    grp.append(pulse, dot, label);
+    grp.addEventListener('click', () => focusMap(i));
+    svg.appendChild(grp);
+    return { grp, dot };
+  });
+  const legend = $$('#legend button');
+  function focusMap(i) {
+    legend.forEach((b, j) => b.classList.toggle('active', j === i));
+    nodes.forEach((n, j) => n.dot.setAttribute('fill', j === i ? '#d0142c' : '#f2ede3'));
+    arcs.forEach((a, j) => a.style.strokeDashoffset = j < i ? 0 : a.getTotalLength());
+  }
+  legend.forEach((b, i) => b.addEventListener('click', () => focusMap(i)));
+  const mio = new IntersectionObserver(es => {
+    if (!es[0].isIntersecting) return;
+    mio.disconnect();
+    let i = 0; focusMap(0);
+    const t = setInterval(() => { i++; focusMap(i); if (i >= 3) clearInterval(t); }, reduce ? 0 : 1500);
+  }, { threshold: .4 });
+  mio.observe(svg);
+
+  /* ---------- Jogo do ippon ---------- */
+  const needle = $('#needle'), zone = $('#zone'), meter = $('#meter'), verdict = $('#verdict'), help = $('#help');
+  let pos = 0, dir = 1, speed = .55, zw = 18, zx = 60, ip = 0, wz = 0, tr = 0, paused = false, last = performance.now();
+  const placeZone = () => { zx = 8 + Math.random() * (84 - zw); zone.style.left = zx + '%'; zone.style.width = zw + '%'; };
+  placeZone();
+  const loop = t => {
+    const dt = Math.min(50, t - last); last = t;
+    if (!paused) {
+      pos += dir * speed * dt / 10;
+      if (pos >= 99) { pos = 99; dir = -1; } else if (pos <= 0) { pos = 0; dir = 1; }
+      needle.style.left = pos + '%';
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+  const msgs = {
+    ippon: ['Projeção perfeita. Kuzushi, tsukuri, kake.', 'Ippon! Tempo exato, como na análise tática.', 'Seiryoku zen\'yo: máxima eficiência.'],
+    waza: ['Quase. Faltou um pouco de desequilíbrio.', 'Waza-ari. Bom ataque, dá para ser mais preciso.'],
+    miss: ['Sem kuzushi, sem projeção. Leia o momento.', 'Adversário em equilíbrio. Espere a abertura.']
+  };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const attack = () => {
+    if (paused) return;
+    tr++; paused = true;
+    const c = zx + zw / 2, d = Math.abs(pos - c);
+    let r;
+    if (d <= zw / 2 * .55) { r = 'ippon'; ip++; zw = Math.max(5, zw - 2); speed = Math.min(1.3, speed + .07); }
+    else if (d <= zw / 2 + 3) { r = 'waza'; wz++; }
+    else r = 'miss';
+    verdict.className = 'verdict'; void verdict.offsetWidth;
+    verdict.className = 'verdict ' + r;
+    verdict.textContent = r === 'ippon' ? 'Ippon!' : r === 'waza' ? 'Waza-ari' : 'Matte';
+    help.textContent = pick(msgs[r]);
+    $('#sIppon').textContent = ip; $('#sWaza').textContent = wz; $('#sTry').textContent = tr;
+    if (r === 'ippon' && navigator.vibrate) navigator.vibrate(60);
+    setTimeout(() => { paused = false; placeZone(); }, 900);
+  };
+  $('#atk').addEventListener('click', attack);
+  meter.addEventListener('pointerdown', attack);
+
+  /* ---------- Cursor de tinta ---------- */
+  const ink = $('#ink');
+  if (matchMedia('(hover:hover)').matches && !reduce) {
+    let x = 0, y = 0, cx = 0, cy = 0;
+    addEventListener('pointermove', e => { x = e.clientX; y = e.clientY; ink.style.opacity = 1; });
+    const follow = () => { cx += (x - cx) * .2; cy += (y - cy) * .2; ink.style.transform = `translate(${cx - ink.offsetWidth / 2}px,${cy - ink.offsetHeight / 2}px)`; requestAnimationFrame(follow); };
+    follow();
+    document.addEventListener('pointerover', e => ink.classList.toggle('big', !!e.target.closest('a,button,.card,.pillar,.meter')));
+  }
+
+  onScroll();
+})();
+</script>
+</body>
+</html>
